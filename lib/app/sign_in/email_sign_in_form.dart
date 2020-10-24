@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:time_tracker/services/auth.dart';
 import 'package:time_tracker/widgets/form_sign_in_button.dart';
 
 enum emailFormType { signIn, register }
 
 class EmailSignInForm extends StatefulWidget {
+  EmailSignInForm({@required this.auth});
+  final AuthBase auth;
   @override
   _EmailSignInFormState createState() => _EmailSignInFormState();
 }
@@ -13,6 +17,9 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
   final TextEditingController _passwordController = TextEditingController();
 
   emailFormType _emailType = emailFormType.signIn;
+
+  String get _email => _emailController.text;
+  String get _password => _passwordController.text;
 
   void _toggleForm() {
     setState(() {
@@ -24,9 +31,17 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
     _passwordController.clear();
   }
 
-  void _submit() {
-    print(
-        'email: ${_emailController.text} password: ${_passwordController.text}');
+  void _submit() async {
+    try {
+      if (_emailType == emailFormType.signIn) {
+        await widget.auth.signInWithEmailAndPassword(_email, _password);
+      } else {
+        await widget.auth.createUserWithEmailAndPassword(_email, _password);
+      }
+      Navigator.pop(context);
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
   List<Widget> _buildChildren() {
@@ -35,34 +50,50 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
     String secondaryText = _emailType == emailFormType.signIn
         ? 'Need an account? Register'
         : 'Have an account? Sign in';
+
+    bool submitEnabled = _email.isNotEmpty && _password.isNotEmpty;
     return [
-      TextField(
-        controller: _emailController,
-        decoration:
-            InputDecoration(labelText: 'Email', hintText: 'test@test.com'),
-      ),
+      _buildEmailTextField(),
       SizedBox(
         height: 8,
       ),
-      TextField(
-        controller: _passwordController,
-        decoration: InputDecoration(
-          labelText: 'Password',
-        ),
-        obscureText: true,
-      ),
+      _buildPasswordTextField(),
       SizedBox(
         height: 8,
       ),
       FormSignInButton(
         text: primaryText,
-        onPressed: _submit,
+        onPressed: submitEnabled ? _submit : null,
       ),
       SizedBox(
         height: 8,
       ),
       FlatButton(onPressed: _toggleForm, child: Text(secondaryText)),
     ];
+  }
+
+  TextField _buildEmailTextField() {
+    return TextField(
+      controller: _emailController,
+      decoration:
+          InputDecoration(labelText: 'Email', hintText: 'test@test.com'),
+      autocorrect: false,
+      keyboardType: TextInputType.emailAddress,
+      onChanged: (email) => _updateState(),
+      textInputAction: TextInputAction.next,
+    );
+  }
+
+  TextField _buildPasswordTextField() {
+    return TextField(
+      controller: _passwordController,
+      decoration: InputDecoration(
+        labelText: 'Password',
+      ),
+      obscureText: true,
+      onChanged: (password) => _updateState(),
+      textInputAction: TextInputAction.done,
+    );
   }
 
   @override
@@ -75,5 +106,9 @@ class _EmailSignInFormState extends State<EmailSignInForm> {
         children: _buildChildren(),
       ),
     );
+  }
+
+  void _updateState() {
+    setState(() {});
   }
 }
