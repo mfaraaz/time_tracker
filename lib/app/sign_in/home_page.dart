@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:time_tracker/services/auth.dart';
-import 'package:time_tracker/widgets/platfrom_alert_dialog.dart';
+import 'package:time_tracker/widgets/platform_alert_dialog.dart';
 
 class HomePage extends StatelessWidget {
   HomePage({@required this.auth});

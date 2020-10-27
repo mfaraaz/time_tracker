@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:time_tracker/app/sign_in/validators.dart';
 import 'package:time_tracker/services/auth.dart';
 import 'package:time_tracker/widgets/form_sign_in_button.dart';
-import 'package:time_tracker/widgets/platfrom_alert_dialog.dart';
+import 'package:time_tracker/widgets/platform_alert_dialog.dart';
 
 enum emailFormType { signIn, register }
 
